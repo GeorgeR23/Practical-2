@@ -2,23 +2,28 @@ using UnityEngine;
 
 public class Tilt : MonoBehaviour
 {
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
-    {
-        
-    }
+    public float speed = 50f;      // Tilt speed
+    public float limit = 20f;      // Max tilt angle (degrees)
 
-    public float speed = 5f;
-    public float limit = 100f;
-    // Update is called once per frame
+    private float currentTiltX = 0f;   // Forward-backward tilt (around X axis)
+    private float currentTiltZ = 0f;   // Left-right tilt (around Z axis)
+
     void Update()
     {
-        float rotationH = Input.GetAxis("Horizontal") * speed;
-        float rotationV = Input.GetAxis("Vertical") * speed;
-        //rotationH *= Time.deltaTime;
-        //rotationV *= Time.deltaTime;
-        transform.rotation = Quaternion.Euler(rotationV, 0f, rotationH);
-        
+        // Get input
+        float inputX = Input.GetAxis("Vertical");   // Forward/backward
+        float inputZ = Input.GetAxis("Horizontal"); // Left/right
 
+        // Apply input scaled by speed and time
+        currentTiltX += inputX * speed * Time.deltaTime;
+        currentTiltZ += inputZ * speed * Time.deltaTime;
+
+        // Clamp angles
+        currentTiltX = Mathf.Clamp(currentTiltX, -limit, limit);
+        currentTiltZ = Mathf.Clamp(currentTiltZ, -limit, limit);
+
+        // Apply rotation (Euler uses X for forward/backward, Z for left/right)
+        transform.rotation = Quaternion.Euler(currentTiltX, 0f, -currentTiltZ);
     }
 }
+
